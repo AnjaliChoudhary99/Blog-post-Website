@@ -60,11 +60,12 @@ app.get('/posts/:postID', function(req,res){
   }
 })
 
+//using bash commands in js, to kill the process already occupying the port
 var command = "lsof -t -i:" + port + " | awk '{print$1}END{if(NR==0)print 0}'";
 const PID = execSync(command);
 if(PID != 0){
   command = "kill -9 " + PID;
-  const output = execSync(command);
+  execSync(command);
   console.log("Killed existing process on port:"+port);
 }
 
