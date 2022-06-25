@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const port = 3009;
 const execSync = require('child_process').execSync;
+const _ = require('lodash');
 
 const homeStartingContent = "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?";
 const aboutContent = "Hac habitasse platea dictumst vestibulum rhoncus est pellentesque. Dictumst vestibulum rhoncus est pellentesque elit ullamcorper. Non diam phasellus vestibulum lorem sed. Platea dictumst quisque sagittis purus sit. Egestas sed sed risus pretium quam vulputate dignissim suspendisse. Mauris in aliquam sem fringilla. Semper risus in hendrerit gravida rutrum quisque non tellus orci. Amet massa vitae tortor condimentum lacinia quis vel eros. Enim ut tellus elementum sagittis vitae. Mauris ultrices eros in cursus turpis massa tincidunt dui.";
@@ -19,6 +20,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
 
 let posts =[];
+
 
 app.get("/", function(req,res){
   res.render('home', {Content:homeStartingContent, posts:posts});
@@ -41,24 +43,65 @@ app.get("/compose", function(req,res){
 app.post("/", function(req,res){
   const post = {
     title: req.body.postTitle,
-    content: req.body.postBody
+    content: req.body.postBody,
+    link:"/posts/postID"
   }
   posts.push(post);
+
   res.redirect("/");
 });
 
-app.get('/post/:postID/user/:userID', function(req, res){
-  console.log(req.params.postID);
-  console.log(req.params.userID);
-});
+// app.get('/post/:postID', function(req, res){
+//   console.log(req.params.postID);
+//   // console.log(req.params.userID);
+// });
 
 app.get('/posts/:postID', function(req,res){
-  var itemNumber =  posts.length;
-  var itemIndex = (itemNumber -1);
-  if(req.params.postID == posts[itemIndex]){
-    console.log("Match found");
+  var postID = _.lowerCase(req.params.postID);
+
+  // console.log(postID);
+  var postIDlength = postID.length;
+  // console.log(postIDlength);
+
+  // console.log(postIDstring);
+  // var arrayLength =  posts.length;
+  // console.log()
+  // if(posts.includes(postIDstring) == true){
+
+  for(var i=0; i<(posts.length); i++){
+
+    if((_.lowerCase(posts[i].title)) == postID){
+
+      res.render('post',{
+        newPostTitle:posts[i].title,
+        newPostContent:posts[i].content
+          // (posts[i].content).slice(0, 100).concat('...')
+      }
+    );
+
+    }else{
+
+//*******************************DOUBTS************************************************
+
+      //doubt, both if and else are working here LOL
+      //truncating a string that it appears in 2 lines on the home page ,
+      // instead of a slider being added to adjust it in one line
+//*************************************************************************************
+
+
+      console.log("NO match found");
+    };
   }
-})
+
+    // console.log(post.title(postIDstring));
+  // };
+  // var arrayIndex = arrayLength-1;
+  // if(postIDstring == posts[arrayIndex]){
+  //   console.log("Match found");
+  // }
+
+
+});
 
 //using bash commands in js, to kill the process already occupying the port
 var command = "lsof -t -i:" + port + " | awk '{print$1}END{if(NR==0)print 0}'";
